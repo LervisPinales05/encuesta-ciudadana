@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Encuesta de Satisfacción Ciudadana</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #f0f4f8;
+    --white: #ffffff;
+    --accent: #00b894;
+    --accent2: #6366f1;
+    --text: #1a202c;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --danger: #ef4444;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 3rem;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0a0f1e 0%, #1a2235 100%);
+    padding: 1.5rem 1.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 24px;
+    background: var(--bg);
+    border-radius: 24px 24px 0 0;
+  }
+  .header-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: #00d4aa; margin-bottom: 1rem; }
+  .header-logo span { color: #fff; }
+  .header-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.3; }
+  .header-sub { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 0.4rem; }
+
+  .service-pill {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(0,212,170,0.15); border: 1px solid rgba(0,212,170,0.3);
+    color: #00d4aa; font-size: 0.75rem; font-weight: 600;
+    padding: 0.3rem 0.8rem; border-radius: 20px; margin-top: 0.8rem;
+  }
+
+  .container { padding: 1.5rem; max-width: 500px; margin: 0 auto; }
+
+  .card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 1rem;
+  }
+
+  .q-label {
+    font-size: 0.75rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.8rem;
+  }
+  .q-text { font-size: 1rem; font-weight: 500; color: var(--text); margin-bottom: 1rem; line-height: 1.4; }
+
+  /* Star rating */
+  .stars { display: flex; gap: 0.6rem; }
+  .star {
+    width: 52px; height: 52px; border-radius: 12px;
+    border: 2px solid var(--border); background: var(--bg);
+    font-size: 1.3rem; font-weight: 700; color: var(--muted);
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    flex: 1;
+  }
+  .star.active { background: #fef3c7; border-color: #f59e0b; color: #f59e0b; transform: scale(1.05); }
+
+  /* Emoji options */
+  .options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .opt {
+    padding: 0.9rem 1rem; border-radius: 12px;
+    border: 2px solid var(--border); background: var(--bg);
+    cursor: pointer; font-size: 0.9rem; transition: all 0.15s;
+    display: flex; align-items: center; gap: 0.6rem; color: var(--text);
+  }
+  .opt.active { background: #ecfdf5; border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .opt .opt-icon { font-size: 1.2rem; }
+
+  /* Text input */
+  textarea {
+    width: 100%; padding: 0.9rem; border-radius: 12px;
+    border: 2px solid var(--border); background: var(--bg);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    color: var(--text); resize: none; outline: none; transition: border-color 0.2s;
+    min-height: 100px;
+  }
+  textarea:focus { border-color: var(--accent); background: #fff; }
+  textarea::placeholder { color: var(--muted); }
+
+  /* Submit */
+  .submit-btn {
+    width: 100%; padding: 1.1rem;
+    background: linear-gradient(135deg, var(--accent), #00d4aa);
+    color: #fff; border: none; border-radius: 14px;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
+    box-shadow: 0 4px 20px rgba(0,184,148,0.3);
+  }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Progress */
+  .progress-bar {
+    height: 4px; background: var(--border); border-radius: 4px; margin-bottom: 1.5rem; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px; transition: width 0.4s ease;
+  }
+
+  /* Success screen */
+  .success-screen {
+    display: none; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 70vh; text-align: center; padding: 2rem;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 4rem; margin-bottom: 1rem; animation: pop 0.4s ease; }
+  @keyframes pop { from{transform:scale(0)} to{transform:scale(1)} }
+  .success-title { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+  .success-sub { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+  .required-dot { color: var(--danger); margin-left: 3px; }
+
+  .anon-note {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: 10px; padding: 0.7rem 1rem;
+    font-size: 0.78rem; color: #166534; margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">CIUDAD<span>360</span></div>
+  <div class="header-title">Encuesta de Satisfacción<br>Ciudadana</div>
+  <div class="header-sub">Tu opinión mejora nuestros servicios</div>
+  <div class="service-pill">
+    <span id="srv-icon">🏢</span>
+    <span id="srv-name">Cargando...</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Survey form -->
+  <div id="form-view">
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+    <div class="anon-note">🔒 Tu respuesta es anónima y confidencial</div>
+
+    <!-- Q1 -->
+    <div class="card" id="q1">
+      <div class="q-label">Pregunta 1 de 4</div>
+      <div class="q-text">¿Cómo calificarías la atención recibida?<span class="required-dot">*</span></div>
+      <div class="stars">
+        <div class="star" onclick="rateStar(1)">1</div>
+        <div class="star" onclick="rateStar(2)">2</div>
+        <div class="star" onclick="rateStar(3)">3</div>
+        <div class="star" onclick="rateStar(4)">4</div>
+        <div class="star" onclick="rateStar(5)">5</div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="card" id="q2">
+      <div class="q-label">Pregunta 2 de 4</div>
+      <div class="q-text">¿Cómo fue el tiempo de espera?<span class="required-dot">*</span></div>
+      <div class="options">
+        <div class="opt" onclick="selectOpt(this,'tiempo')"><span class="opt-icon">🚀</span> Muy rápido</div>
+        <div class="opt" onclick="selectOpt(this,'tiempo')"><span class="opt-icon">😊</span> Rápido</div>
+        <div class="opt" onclick="selectOpt(this,'tiempo')"><span class="opt-icon">😐</span> Aceptable</div>
+        <div class="opt" onclick="selectOpt(this,'tiempo')"><span class="opt-icon">😕</span> Largo</div>
+        <div class="opt" onclick="selectOpt(this,'tiempo')"><span class="opt-icon">😡</span> Muy largo</div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="card" id="q3">
+      <div class="q-label">Pregunta 3 de 4</div>
+      <div class="q-text">¿Tu solicitud fue resuelta?<span class="required-dot">*</span></div>
+      <div class="options">
+        <div class="opt" onclick="selectOpt(this,'resolucion')"><span class="opt-icon">✅</span> Totalmente resuelta</div>
+        <div class="opt" onclick="selectOpt(this,'resolucion')"><span class="opt-icon">⚡</span> Parcialmente resuelta</div>
+        <div class="opt" onclick="selectOpt(this,'resolucion')"><span class="opt-icon">❌</span> No fue resuelta</div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="card" id="q4">
+      <div class="q-label">Pregunta 4 de 4 — Opcional</div>
+      <div class="q-text">¿Tienes algún comentario adicional?</div>
+      <textarea id="comentario" placeholder="Cuéntanos tu experiencia..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitForm()">
+      Enviar evaluación →
+    </button>
+  </div>
+
+  <!-- Success -->
+  <div class="success-screen" id="success-view">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">¡Gracias por tu evaluación!</div>
+    <div class="success-sub">
+      Tu opinión nos ayuda a mejorar los servicios municipales.<br><br>
+      <strong id="success-service"></strong><br>
+      <span id="success-period"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const answers = { rating: 0, tiempo: '', resolucion: '', comentario: '' };
+
+  // Read URL params
+  const params = new URLSearchParams(window.location.search);
+  const srvParam = params.get('srv') || 'general';
+  const qParam = params.get('q') || 'Q3-2025';
+
+  const serviceMap = {
+    'licencias': { name: 'Licencias y Permisos', icon: '🏢' },
+    'licencias-y-permisos': { name: 'Licencias y Permisos', icon: '🏢' },
+    'registro': { name: 'Registro Civil', icon: '📜' },
+    'registro-civil': { name: 'Registro Civil', icon: '📜' },
+    'pagos': { name: 'Pagos y Tributos', icon: '💳' },
+    'pagos-y-tributos': { name: 'Pagos y Tributos', icon: '💳' },
+    'atencion': { name: 'Atención al Ciudadano', icon: '👥' },
+    'atencion-al-ciudadano': { name: 'Atención al Ciudadano', icon: '👥' },
+    'digital': { name: 'Servicios Digitales', icon: '💻' },
+    'servicios-digitales': { name: 'Servicios Digitales', icon: '💻' },
+    'infraestructura': { name: 'Infraestructura', icon: '🏗️' },
+  };
+
+  const srvInfo = serviceMap[srvParam] || { name: 'Servicio Municipal', icon: '🏛️' };
+  document.getElementById('srv-name').textContent = srvInfo.name + ' · ' + qParam.replace('-',' ').toUpperCase();
+  document.getElementById('srv-icon').textContent = srvInfo.icon;
+  document.getElementById('success-service').textContent = srvInfo.name;
+  document.getElementById('success-period').textContent = qParam.replace('-',' ').toUpperCase();
+
+  function rateStar(val) {
+    answers.rating = val;
+    document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('active', i < val));
+    updateProgress();
+  }
+
+  function selectOpt(el, key) {
+    answers[key] = el.textContent.trim();
+    el.closest('.options').querySelectorAll('.opt').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    answers.comentario = document.getElementById('comentario').value;
+    let filled = 0;
+    if(answers.rating) filled++;
+    if(answers.tiempo) filled++;
+    if(answers.resolucion) filled++;
+    if(answers.comentario) filled++;
+    document.getElementById('progress').style.width = (filled/4*100)+'%';
+  }
+
+  function submitForm() {
+    if(!answers.rating || !answers.tiempo || !answers.resolucion) {
+      alert('Por favor responde las preguntas obligatorias (marcadas con *)');
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    // Save to localStorage for demo purposes
+    const response = {
+      id: Date.now(),
+      service: srvInfo.name,
+      period: qParam.replace('-',' ').toUpperCase(),
+      rating: answers.rating,
+      tiempo: answers.tiempo,
+      resolucion: answers.resolucion,
+      comment: answers.comentario,
+      date: new Date().toLocaleDateString('es-ES')
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('ciudad360_responses') || '[]');
+      existing.push(response);
+      localStorage.setItem('ciudad360_responses', JSON.stringify(existing));
+    } catch(e) {}
+
+    setTimeout(() => {
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').classList.add('show');
+    }, 800);
+  }
+</script>
+</body>
+</html>
